@@ -1,0 +1,4 @@
+{
+  "tests/send_email/test_send_email.py": true,
+  "tests/send_email/test_send_email.py::test_all": true
+}
