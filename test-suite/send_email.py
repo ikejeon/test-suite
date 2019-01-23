@@ -9,6 +9,8 @@ import time
 import re
 import json
 import logging
+import shutil
+import zipfile
 
 from indy import crypto, did, wallet
 
@@ -193,31 +195,6 @@ def demo(imap):
             break
         else:
             print('Huh?')
-
-_default_smtp_cfg = {
-    'server': 'smtp.gmail.com',
-    'username': 'your email',
-    'password': 'find the password from the config file',
-    'port': '587'
-}
-
-_default_imap_cfg = {
-    'server': 'imap.gmail.com',
-    'username': 'indyagent1@gmail.com',
-    'password': 'invalid password',
-    'ssl': '1',
-    'port': '993'
-}
-
-loop = asyncio.get_event_loop()
-home = expanduser("~")
-args = _get_config_from_cmdline()
-cfg = _get_config_from_file()
-smtp_cfg = _apply_cfg(cfg, 'smtp2', _default_smtp_cfg)
-imap_cfg = _apply_cfg(cfg, 'imap2', _default_imap_cfg)
-securemsg = SecureMsg()
-setUp()
-
 def test_all():
     loop = asyncio.get_event_loop()
     home = expanduser("~")
@@ -260,6 +237,32 @@ async def create():
     zipPath = shutil.make_archive('wallet', 'zip', filePath)
     return zipPath
 
-# send_to_agent()
+_default_smtp_cfg = {
+    'server': 'smtp.gmail.com',
+    'username': 'your email',
+    'password': 'find the password from the config file',
+    'port': '587'
+}
+
+_default_imap_cfg = {
+    'server': 'imap.gmail.com',
+    'username': 'indyagent1@gmail.com',
+    'password': 'invalid password',
+    'ssl': '1',
+    'port': '993'
+}
+
+loop = asyncio.get_event_loop()
+home = expanduser("~")
+args = _get_config_from_cmdline()
+cfg = _get_config_from_file()
+smtp_cfg = _apply_cfg(cfg, 'smtp2', _default_smtp_cfg)
+imap_cfg = _apply_cfg(cfg, 'imap2', _default_imap_cfg)
+securemsg = SecureMsg()
+zipPath = loop.run_until_complete(create())
+setUp()
+
+send_to_agent(zipPath, 'test-wallet')
+
 while True:
     demo(imap_cfg)
