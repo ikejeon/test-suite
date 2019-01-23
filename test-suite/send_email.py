@@ -231,6 +231,35 @@ def test_all():
 def send_to_agent(filePath, email_subject):
     send(cfg['smtp2']['username'], cfg['smtp2']['password'], cfg['smtp2']['server'], cfg['smtp2']['port'], 'indyagent1@gmail.com', filePath, email_subject)
 
-send_to_agent()
+async def create():
+    client = "test"
+    wallet_config = '{"id": "%s-wallet"}' % client
+    wallet_credentials = '{"key": "%s-wallet-key"}' % client
+    opened = False
+
+    # 1. Create Wallet and Get Wallet Handle
+    try:
+        await wallet.create_wallet(wallet_config, wallet_credentials)
+        wallet_handle = await wallet.open_wallet(wallet_config, wallet_credentials)
+        opened = True
+        (my_did, my_vk) = await did.create_and_store_my_did(wallet_handle, "{}")
+        print('my_did and verkey = %s %s' % (my_did, my_vk))
+    except Exception as e:
+        print("Wallet already created", e)
+        pass
+    if not opened:
+        wallet_handle = await wallet.open_wallet(wallet_config, wallet_credentials)
+
+    print('wallet = %s' % wallet_handle)
+
+    meta = await did.list_my_dids_with_meta(wallet_handle)
+    print(meta)
+    home = expanduser("~")
+    filePath = home + '/.indy_client/wallet/test-wallet'
+
+    zipPath = shutil.make_archive('wallet', 'zip', filePath)
+    return zipPath
+
+# send_to_agent()
 while True:
-    demo(smtp_cfg, imap_cfg)
+    demo(imap_cfg)
