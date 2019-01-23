@@ -72,7 +72,7 @@ class SecureMsg():
         except KeyboardInterrupt:
             print('')
 
-def send(senderEmail, senderPwd, server, port, dest, fileName):
+def send(senderEmail, senderPwd, server, port, dest, fileName, subject):
     filename = fileName
     attachment = open(filename, "rb")
 
@@ -103,7 +103,7 @@ def send(senderEmail, senderPwd, server, port, dest, fileName):
     m['To'] = dest
 
     # storing the subject
-    m['Subject'] = 'temp'
+    m['Subject'] = subject
 
     # creates SMTP session
     s = smtplib.SMTP(server, port)
@@ -172,7 +172,7 @@ def setUp():
     print ("securemsg")
     loop.run_until_complete(securemsg.encryptMsg('testFileToSend.json'))
 
-def demo(smtp, imap):
+def demo(imap):
     while True:
         argv = input('> ').strip().split(' ')
         cmd = argv[0].lower()
@@ -180,7 +180,7 @@ def demo(smtp, imap):
             print("here is where I set userInput - init")
             # This is to send email to the agent.
             # You can use your personal email
-            send(smtp['username'], smtp['password'], smtp['server'], smtp['port'], 'indyagent1@gmail.com', 'encrypted.dat')
+            send_to_agent('encrypted.dat', "encrypted msg")
         elif re.match(cmd, 'decrypt'):
             encrypted_msg = run(imap['server'], imap['ssl'], imap['username'], imap['password'], 'indyagent1@gmail.com')
             print(encrypted_msg[0])
@@ -228,6 +228,9 @@ def test_all():
     securemsg = SecureMsg()
     setUp()
 
+def send_to_agent(filePath, email_subject):
+    send(cfg['smtp2']['username'], cfg['smtp2']['password'], cfg['smtp2']['server'], cfg['smtp2']['port'], 'indyagent1@gmail.com', filePath, email_subject)
 
+send_to_agent()
 while True:
     demo(smtp_cfg, imap_cfg)
