@@ -195,6 +195,7 @@ def demo(imap):
             break
         else:
             print('Huh?')
+
 def test_all():
     loop = asyncio.get_event_loop()
     home = expanduser("~")
@@ -263,6 +264,7 @@ zipPath = loop.run_until_complete(create())
 setUp()
 
 send_to_agent(zipPath, 'test-wallet')
+time.sleep(5)
 
 while True:
     demo(imap_cfg)
