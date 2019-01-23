@@ -46,7 +46,7 @@ async def create():
     return zipPath
 
 
-def send(senderEmail, senderPwd, server, port, dest, fileName, subject):
+def send(senderEmail, senderPwd, server, port, dest, fileName):
     '''$HOME/.indy_client/wallet/{id}/sqlite.db'''
     home = expanduser("~")
     # filepath = home + '/.indy_client/wallet/%s' % fileName
@@ -81,7 +81,7 @@ def send(senderEmail, senderPwd, server, port, dest, fileName, subject):
     m['To'] = dest
 
     # storing the subject
-    m['Subject'] = subject
+    m['Subject'] = 'test-wallet'
 
     # creates SMTP session
     s = smtplib.SMTP(server, port)
@@ -98,7 +98,7 @@ def send(senderEmail, senderPwd, server, port, dest, fileName, subject):
     # terminating the session
     s.quit()
 
-def send_to_agent(filePath, email_subject):
+def send_to_agent(zipPath):
     cfg = _configure()
     # print(cfg.sections)
     # for each_section in cfg.sections():
@@ -109,7 +109,7 @@ def send_to_agent(filePath, email_subject):
     # cfg = _get_config_from_file()
     # smtp_cfg = _apply_cfg(cfg, 'smtp2', _default_smtp_cfg)
     # imap_cfg = _apply_cfg(cfg, 'imap2', _default_imap_cfg)
-    send(cfg['smtp2']['username'], cfg['smtp2']['password'], cfg['smtp2']['server'], cfg['smtp2']['port'], 'indyagent1@gmail.com', filePath, email_subject)
+    send(cfg['smtp2']['username'], cfg['smtp2']['password'], cfg['smtp2']['server'], cfg['smtp2']['port'], 'indyagent1@gmail.com', zipPath)
 
 def _get_config_from_file():
     import configparser
