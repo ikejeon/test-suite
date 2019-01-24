@@ -40,11 +40,11 @@ def _apply_cfg(cfg, section, defaults):
             x[key] = src[key]
     return x
 
-# def set_up_all():
-loop = asyncio.get_event_loop()
-home = expanduser("~")
-cfg = _get_config_from_file(home)
-smtp_cfg = _apply_cfg(cfg, 'smtp2', _default_smtp_cfg)
-imap_cfg = _apply_cfg(cfg, 'imap2', _default_imap_cfg)
-wallet_email_subject = "test-wallet"
-    # return loop, home, args, cfg, smtp_cfg, imap_cfg, securemsg, zipPath, wallet_email_subject
+def set_up_all():
+    loop = asyncio.get_event_loop()
+    home = expanduser("~")
+    cfg = _get_config_from_file(home)
+    smtp_cfg = _apply_cfg(cfg, 'smtp2', _default_smtp_cfg)
+    imap_cfg = _apply_cfg(cfg, 'imap2', _default_imap_cfg)
+    wallet_email_subject = "test-wallet"
+    return loop, home, args, cfg, smtp_cfg, imap_cfg, securemsg, zipPath, wallet_email_subject
