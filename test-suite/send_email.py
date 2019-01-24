@@ -147,7 +147,7 @@ def _get_config_from_cmdline():
     args = parser.parse_args()
     return args
 
-def _get_config_from_file():
+def _get_config_from_file(home):
     import configparser
     cfg = configparser.ConfigParser()
     cfg_path = home+'/.mailagent/config.ini'
@@ -163,46 +163,53 @@ def _apply_cfg(cfg, section, defaults):
             x[key] = src[key]
     return x
 
-def setUp():
+def setUp(loop, securemsg):
     print ("securemsg")
     loop.run_until_complete(securemsg.encryptMsg('testFileToSend.json'))
 
 def demo(imap):
-    while True:
-        argv = input('> ').strip().split(' ')
-        cmd = argv[0].lower()
-        if re.match(cmd, 'send'):
-            print("here is where I set userInput - init")
-            # This is to send email to the agent.
-            # You can use your personal email
-            send_to_agent('encrypted.dat', "encrypted msg")
-        elif re.match(cmd, 'decrypt'):
-            encrypted_msg = run(imap['server'], imap['ssl'], imap['username'], imap['password'], 'indyagent1@gmail.com')
-            print(encrypted_msg[0])
-            decrypted_msg = loop.run_until_complete(securemsg.decryptMsg(encrypted_msg))
-            print(decrypted_msg)
-            decrypted_msg_obj = json.loads(decrypted_msg[1].decode("utf-8"))
-            print('decrypted_msg_obj is:  ')
-            print(decrypted_msg_obj)
-        elif re.match(cmd, 'quit'):
-            break
-        else:
-            print('Huh?')
+    send_to_agent('encrypted.dat', "encrypted msg")
+    return run(imap['server'], imap['ssl'], imap['username'], imap['password'], 'indyagent1@gmail.com')
 
-def test_all():
-    loop = asyncio.get_event_loop()
-    home = expanduser("~")
-    args = _get_config_from_cmdline()
-    cfg = _get_config_from_file()
-    smtp_cfg = _apply_cfg(cfg, 'smtp2', _default_smtp_cfg)
-    imap_cfg = _apply_cfg(cfg, 'imap2', _default_imap_cfg)
-    securemsg = SecureMsg()
-    setUp()
+    # while True:
+    #     argv = input('> ').strip().split(' ')
+    #     cmd = argv[0].lower()
+    #     if re.match(cmd, 'send'):
+    #         print("here is where I set userInput - init")
+    #         # This is to send email to the agent.
+    #         # You can use your personal email
+    #         send_to_agent('encrypted.dat', "encrypted msg")
+    #     elif re.match(cmd, 'decrypt'):
+    #         encrypted_msg = run(imap['server'], imap['ssl'], imap['username'], imap['password'], 'indyagent1@gmail.com')
+    #         print(encrypted_msg[0])
+    #         decrypted_msg = loop.run_until_complete(securemsg.decryptMsg(encrypted_msg))
+    #         print(decrypted_msg)
+    #         decrypted_msg_obj = json.loads(decrypted_msg[1].decode("utf-8"))
+    #         print('decrypted_msg_obj is:  ')
+    #         print(decrypted_msg_obj)
+    #     elif re.match(cmd, 'quit'):
+    #         break
+    #     else:
+    #         print('Huh?')
 
-def send_to_agent(filePath, email_subject):
+# def set_up_all():
+#     loop = asyncio.get_event_loop()
+#     home = expanduser("~")
+#     args = _get_config_from_cmdline()
+#     cfg = _get_config_from_file(home)
+#     smtp_cfg = _apply_cfg(cfg, 'smtp2', _default_smtp_cfg)
+#     imap_cfg = _apply_cfg(cfg, 'imap2', _default_imap_cfg)
+#     securemsg = SecureMsg()
+#     zipPath = loop.run_until_complete(create(securemsg))
+#     wallet_email_subject = "test-wallet"
+#     setUp(loop, securemsg)
+#     send_to_agent(zipPath, cfg, wallet_email_subject)
+
+def send_to_agent(filePath_cfg, email_subject):
     send(cfg['smtp2']['username'], cfg['smtp2']['password'], cfg['smtp2']['server'], cfg['smtp2']['port'], 'indyagent1@gmail.com', filePath, email_subject)
+    time.sleep(5.0)
 
-async def create():
+async def create(securemsg):
     client = "test"
     wallet_config = '{"id": "%s-wallet"}' % client
     wallet_credentials = '{"key": "%s-wallet-key"}' % client
@@ -248,21 +255,3 @@ _default_imap_cfg = {
     'ssl': '1',
     'port': '993'
 }
-
-loop = asyncio.get_event_loop()
-home = expanduser("~")
-args = _get_config_from_cmdline()
-cfg = _get_config_from_file()
-smtp_cfg = _apply_cfg(cfg, 'smtp2', _default_smtp_cfg)
-imap_cfg = _apply_cfg(cfg, 'imap2', _default_imap_cfg)
-securemsg = SecureMsg()
-print("their vk is: ", securemsg.their_vk)
-zipPath = loop.run_until_complete(create())
-print("their vk after create custom wallet is: ", securemsg.their_vk)
-setUp()
-
-send_to_agent(zipPath, 'test-wallet')
-time.sleep(5)
-
-while True:
-    demo(imap_cfg)
