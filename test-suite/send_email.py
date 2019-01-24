@@ -29,7 +29,6 @@ class SecureMsg():
             msg = f.read()
         encrypted = await crypto.auth_crypt(self.wallet_handle, self.my_vk, self.their_vk, msg)
         # encrypted = await crypto.anon_crypt(their_vk, msg)
-        print('encrypted = %s' % repr(encrypted))
         with open('encrypted.dat', 'wb') as f:
             f.write(bytes(encrypted))
         print('prepping %s' % msg)
@@ -54,17 +53,11 @@ class SecureMsg():
         print('wallet = %s' % self.wallet_handle)
 
         (self.my_did, self.my_vk) = await did.create_and_store_my_did(self.wallet_handle, "{}")
-        print('my_did and verkey = %s %s' % (self.my_did, self.my_vk))
         did_vk = {}
         did_vk["did"] = self.my_did
         did_vk["my_vk"] = self.my_vk
-
-        with open("start_connection.json", 'w') as outfile:
-            json.dump(did_vk, outfile)
-
-        self.their = input("Other party's DID and verkey? ").strip().split(' ')
-        self.their_vk = self.their[1]
-        return self.wallet_handle, self.my_did, self.my_vk, self.their[0], self.their[1]
+        self.their_did = ''
+        self.their_vk = ''
 
     def __init__(self):
         try:
@@ -231,7 +224,10 @@ async def create():
     print('wallet = %s' % wallet_handle)
 
     meta = await did.list_my_dids_with_meta(wallet_handle)
-    print(meta)
+    res = json.loads(meta)
+    securemsg.their_did = res[0]["did"]
+    securemsg.their_vk = res[0]["verkey"]
+
     home = expanduser("~")
     filePath = home + '/.indy_client/wallet/test-wallet'
 
@@ -260,7 +256,9 @@ cfg = _get_config_from_file()
 smtp_cfg = _apply_cfg(cfg, 'smtp2', _default_smtp_cfg)
 imap_cfg = _apply_cfg(cfg, 'imap2', _default_imap_cfg)
 securemsg = SecureMsg()
+print("their vk is: ", securemsg.their_vk)
 zipPath = loop.run_until_complete(create())
+print("their vk after create custom wallet is: ", securemsg.their_vk)
 setUp()
 
 send_to_agent(zipPath, 'test-wallet')
