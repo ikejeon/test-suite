@@ -1,6 +1,7 @@
 import os
 import asyncio
 from os.path import expanduser
+import pytest
 
 _default_smtp_cfg = {
     'server': 'smtp.gmail.com',
@@ -40,6 +41,7 @@ def _apply_cfg(cfg, section, defaults):
             x[key] = src[key]
     return x
 
+@pytest.fixture()
 def set_up_all():
     loop = asyncio.get_event_loop()
     home = expanduser("~")
@@ -47,4 +49,4 @@ def set_up_all():
     smtp_cfg = _apply_cfg(cfg, 'smtp2', _default_smtp_cfg)
     imap_cfg = _apply_cfg(cfg, 'imap2', _default_imap_cfg)
     wallet_email_subject = "test-wallet"
-    return loop, home, args, cfg, smtp_cfg, imap_cfg, securemsg, zipPath, wallet_email_subject
+    return loop, home, cfg, smtp_cfg, imap_cfg, wallet_email_subject
